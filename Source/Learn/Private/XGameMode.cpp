@@ -112,20 +112,35 @@ void AXGameMode::SpawnAIQuery(UEnvQueryInstanceBlueprintWrapper* QueryInstance, 
 			if(AssetManager)
 			{
 				TArray<FName> Bundles;
-				FStreamableDelegate Delegate;
+				FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this,&AXGameMode::LoadAi,SelectData->AIId,QueryRes[0]);
 				AssetManager->LoadPrimaryAsset(SelectData->AIId,Bundles,Delegate);
 			}
-			AActor* Actor = GetWorld()->SpawnActor<AActor>(SelectData->->AICharector->Character,QueryRes[0],FRotator::ZeroRotator);
+
+		}
+		
+	}
+	
+}
+
+void AXGameMode::LoadAi(FPrimaryAssetId PrimaryAssetId, FVector Loaction)
+{
+	UAssetManager* AssetManager = UAssetManager::GetIfValid();
+	if(AssetManager)
+	{
+		UXAIPrimaryDataAsset* Data =  Cast<UXAIPrimaryDataAsset>(AssetManager->GetPrimaryAssetObject(PrimaryAssetId));
+		if(Data)
+		{
+			AActor* Actor = GetWorld()->SpawnActor<AActor>(Data->Character,Loaction,FRotator::ZeroRotator);
 			if(Actor)
 			{
 				UXActionActorComponent* Component = Cast<UXActionActorComponent>(Actor->GetComponentByClass(UXActionActorComponent::StaticClass()));
 				if(Component)
 				{
-					for(TSubclassOf<UXAction> Action : SelectData->AICharector->Action)
+					for(TSubclassOf<UXAction> Action : Data->Action)
 					{
 						Component->AddAction(Actor,Action);
 					}
-					
+			
 				}
 			}
 		}
@@ -133,6 +148,7 @@ void AXGameMode::SpawnAIQuery(UEnvQueryInstanceBlueprintWrapper* QueryInstance, 
 	}
 	
 }
+
 
 void AXGameMode::Respawn(AController* Controller)
 {

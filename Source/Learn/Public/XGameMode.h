@@ -75,5 +75,6 @@ protected:
 	FString SlotName;
 	UXSaveGame* CurrentSaveGame;
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage);
+	void LoadAi(FPrimaryAssetId PrimaryAssetId,FVector Loaction);
 };
 
